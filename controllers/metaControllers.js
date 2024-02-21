@@ -2,6 +2,7 @@ import { META, ANIME } from "@consumet/extensions";
 const anilist = new META.Anilist();
 const gogoanime = new ANIME.Gogoanime();
 const zoro = new ANIME.Zoro();
+const mal = new META.Myanimelist();
 
 const searchRoute = async (req, res) => {
     const query = req.params.query;
@@ -101,6 +102,7 @@ const recentEpisodesRoute = async (req, res) => {
 const watchRoute = async (req, res) => {
     const epId = req.params.epId;
 
+    // const result = await mal.fetchEpisodeSources(epId);
     const result = await anilist.fetchEpisodeSources(epId);
     res.status(200).send(result);
 };
@@ -129,9 +131,23 @@ const AiringScheduleRoute = async (req, res) => {
     const notYetAired = req.query.notYetAired;
 
     const _weekStart = Math.ceil(Date.now() / 1000);
-    const result = await anilist.fetchAiringSchedule(page, perPage, weekStart, weekEnd, notYetAired);
+    const result = await anilist.fetchAiringSchedule(
+        page,
+        perPage,
+        weekStart !== null && weekStart !== undefined ? weekStart : _weekStart,
+        weekEnd !== null && weekEnd !== undefined ? weekEnd : _weekStart + 604800,
+        notYetAired !== null && notYetAired !== undefined ? notYetAired : true
+    );
 
     // const result = await anilist.fetchAiringSchedule(page, perPage, weekStart, weekEnd, notYetAired);
+    res.status(200).send(result);
+};
+
+const EpisodelistById = async (req, res) => {
+    const id = req.params.id;
+
+    const result = await anilist.fetchEpisodesListById(id);
+
     res.status(200).send(result);
 };
 export default {
@@ -146,4 +162,5 @@ export default {
     gogoanimeRecentEpisodesRoute,
     advancedSearchRoute,
     AiringScheduleRoute,
+    EpisodelistById,
 };
