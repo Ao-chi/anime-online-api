@@ -138,7 +138,7 @@ const AiringScheduleRoute = async (req, res) => {
         weekEnd !== null && weekEnd !== undefined ? weekEnd : _weekStart + 604800,
         notYetAired !== null && notYetAired !== undefined ? notYetAired : true
     );
-
+    console.log(_weekStart);
     // const result = await anilist.fetchAiringSchedule(page, perPage, weekStart, weekEnd, notYetAired);
     res.status(200).send(result);
 };
