@@ -12,11 +12,11 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "@consumet/extensions": "github:Ao-chi/consumet.ts",
         "apicache": "^1.6.3",
         "cors": "^2.8.5",
         "express": "^4.18.2",
-        "node-cache": "^5.1.2"
+        "node-cache": "^5.1.2",
+        "@consumet/extensions": "consumet/consumet.ts"
     },
     "devDependencies": {
         "nodemon": "^3.0.2"
