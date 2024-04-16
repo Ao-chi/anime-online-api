@@ -15,6 +15,7 @@ const {
     watchRoute,
     zoroInfoRoute,
     zoroWatchRoute,
+    zoroRecentEpisodes,
     gogoanimeRecentEpisodesRoute,
     advancedSearchRoute,
     AiringScheduleRoute,
@@ -43,7 +44,9 @@ metaRouter.get("/watch/:epId", watchRoute);
 
 metaRouter.get("/zoro/info/:aniId", zoroInfoRoute);
 
-metaRouter.get("/zoro/watch/:epiId", zoroWatchRoute);
+metaRouter.get("/zoro/watch/:epId", zoroWatchRoute);
+
+metaRouter.get("/zoro/recent-episode", cache("2 minutes"), zoroRecentEpisodes);
 
 metaRouter.get("/airing-schedule", AiringScheduleRoute);
 

@@ -123,6 +123,13 @@ const zoroWatchRoute = async (req, res) => {
     res.status(200).send(result);
 };
 
+const zoroRecentEpisodes = async (req, res) => {
+    const page = req.query.page;
+
+    const result = await zoro.fetchRecentlyUpdated(page);
+    res.status(200).send(result);
+};
+
 const AiringScheduleRoute = async (req, res) => {
     const page = req.query.page;
     const perPage = req.query.perPage;
@@ -159,6 +166,7 @@ export default {
     watchRoute,
     zoroInfoRoute,
     zoroWatchRoute,
+    zoroRecentEpisodes,
     gogoanimeRecentEpisodesRoute,
     advancedSearchRoute,
     AiringScheduleRoute,
