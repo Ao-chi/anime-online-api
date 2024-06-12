@@ -16,6 +16,7 @@ const {
     zoroInfoRoute,
     zoroWatchRoute,
     zoroRecentEpisodes,
+    gogoInfoRoute,
     gogoanimeRecentEpisodesRoute,
     advancedSearchRoute,
     AiringScheduleRoute,
@@ -37,6 +38,8 @@ metaRouter.get("/trending?", cache("2 minutes"), trendingRoute);
 metaRouter.get("/popular?", cache("2 minutes"), popularRoute);
 
 metaRouter.get("/recent-episode", cache("2 minutes"), recentEpisodesRoute);
+
+metaRouter.get("/gogoanime/info/:aniId", cache("2 minutes"), gogoInfoRoute);
 
 metaRouter.get("/gogoanime/recent-episode", cache("2 minutes"), gogoanimeRecentEpisodesRoute);
 

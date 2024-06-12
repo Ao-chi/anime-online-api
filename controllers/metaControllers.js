@@ -72,6 +72,13 @@ const popularRoute = async (req, res) => {
     res.status(200).send(result);
 };
 
+const gogoInfoRoute = async (req, res) => {
+    const aniId = req.params.aniId;
+
+    const result = await gogoanime.fetchAnimeInfo(aniId);
+    res.status(200).send(result);
+};
+
 const gogoanimeRecentEpisodesRoute = async (req, res) => {
     const page = req.query.page;
     const perPage = req.query.perPage;
@@ -118,8 +125,9 @@ const zoroInfoRoute = async (req, res) => {
 const zoroWatchRoute = async (req, res) => {
     const epId = req.params.epId;
     const isDub = req.query.isDub;
+    const server = req.query.server;
 
-    const result = await zoro.fetchEpisodeSources(epId, isDub);
+    const result = await zoro.fetchEpisodeSources(epId, isDub, server);
     res.status(200).send(result);
 };
 
@@ -167,6 +175,7 @@ export default {
     zoroInfoRoute,
     zoroWatchRoute,
     zoroRecentEpisodes,
+    gogoInfoRoute,
     gogoanimeRecentEpisodesRoute,
     advancedSearchRoute,
     AiringScheduleRoute,
