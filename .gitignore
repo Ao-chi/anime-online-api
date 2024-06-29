@@ -3,4 +3,4 @@
 package-lock.json
 /consumet.ts-master
 launch.json
-!/node_modules/@consumet/
+# !/node_modules/@consumet/
