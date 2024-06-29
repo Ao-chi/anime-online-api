@@ -1,5 +1,6 @@
 import express from "express";
 import metaControllers from "../controllers/metaControllers.js";
+import zoroControllers from "../controllers/zoroControllers.js";
 
 import apicache from "apicache";
 let cache = apicache.middleware;
@@ -13,15 +14,15 @@ const {
     popularRoute,
     recentEpisodesRoute,
     watchRoute,
-    zoroInfoRoute,
-    zoroWatchRoute,
-    zoroRecentEpisodes,
+
     gogoInfoRoute,
     gogoanimeRecentEpisodesRoute,
     advancedSearchRoute,
     AiringScheduleRoute,
     EpisodelistById,
 } = metaControllers;
+
+const { zoroInfoRoute, zoroWatchRoute, zoroRecentEpisodes } = zoroControllers;
 
 metaRouter.get("/", (req, res) => {
     res.send("welcome to Anime API");
@@ -45,14 +46,16 @@ metaRouter.get("/gogoanime/recent-episode", cache("2 minutes"), gogoanimeRecentE
 
 metaRouter.get("/watch/:epId", watchRoute);
 
+metaRouter.get("/airing-schedule", AiringScheduleRoute);
+
+metaRouter.get("/meta/episode-list-by-id/:id", EpisodelistById);
+
+//zoro
+
 metaRouter.get("/zoro/info/:aniId", zoroInfoRoute);
 
 metaRouter.get("/zoro/watch/:epId", zoroWatchRoute);
 
 metaRouter.get("/zoro/recent-episode", cache("2 minutes"), zoroRecentEpisodes);
-
-metaRouter.get("/airing-schedule", AiringScheduleRoute);
-
-metaRouter.get("/meta/episode-list-by-id/:id", EpisodelistById);
 
 export default { metaRouter };
