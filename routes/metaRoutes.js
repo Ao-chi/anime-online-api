@@ -48,7 +48,7 @@ metaRouter.get("/watch/:epId", watchRoute);
 
 metaRouter.get("/airing-schedule", AiringScheduleRoute);
 
-metaRouter.get("/meta/episode-list-by-id/:id", EpisodelistById);
+metaRouter.get("/meta/episodelist-by-id/:id", EpisodelistById);
 
 //zoro
 
