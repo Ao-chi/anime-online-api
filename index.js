@@ -20,14 +20,14 @@ app.listen(port, () => console.log(`Server running on port: http://localhost:${p
 
 // cron.job.start();
 
-// import { META } from "@consumet/extensions";
+import { META } from "@consumet/extensions";
 
-// const meta = new META.Anilist();
+const meta = new META.Anilist();
 
-// const episodes = async () => {
-//     let list = [];
-//     const a = await meta.fetchEpisodesListById(164212);
-//     console.log(a);
-// };
+const episodes = async () => {
+    let list = [];
+    const a = await meta.fetchEpisodesListById(164212);
+    console.log(a);
+};
 
-// episodes();
+episodes();
