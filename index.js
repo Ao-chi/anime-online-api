@@ -33,7 +33,9 @@ const episodes = async () => {
 // episodes();
 
 const episodesL = async () => {
-    const res = await fetch("http://localhost:3001/api.animeonline/meta/episodelist-by-id/164212");
+    const res = await fetch(
+        "https://animeonline-api.onrender.com/api.animeonline/meta/episodelist-by-id/164212"
+    );
     const data = await res.json();
     console.log(data);
 };
