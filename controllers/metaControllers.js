@@ -135,9 +135,9 @@ const AiringScheduleRoute = async (req, res) => {
 };
 
 const EpisodelistById = async (req, res) => {
-    const id = req.params.id;
+    const aniId = req.params.aniId;
 
-    const result = await anilist.fetchEpisodesListById(id);
+    const result = await anilist.fetchEpisodesListById(aniId);
 
     res.status(200).send(result);
 };
