@@ -12,7 +12,7 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "@consumet/extensions": "^1.6.0",
+        "@consumet/extensions": "github:Ao-chi/consumet.ts",
         "apicache": "^1.6.3",
         "cors": "^2.8.5",
         "cron": "^3.1.7",
