@@ -5,14 +5,14 @@
     "main": "index.js",
     "type": "module",
     "scripts": {
-        "start": "node index.js",
+        "start": "node index.js --watch",
         "dev": "nodemon index.js"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "@consumet/extensions": "github:consumet/consumet.ts",
+        "@consumet/extensions": "github:Ao-chi/consumet.ts",
         "apicache": "^1.6.3",
         "cors": "^2.8.5",
         "cron": "^3.1.7",
