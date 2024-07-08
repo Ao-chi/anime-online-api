@@ -70,23 +70,6 @@ const popularRoute = async (req, res) => {
     res.status(200).send(result);
 };
 
-const gogoInfoRoute = async (req, res) => {
-    const aniId = req.params.aniId;
-
-    const result = await gogoanime.fetchAnimeInfo(aniId);
-    res.status(200).send(result);
-};
-
-const gogoanimeRecentEpisodesRoute = async (req, res) => {
-    const page = req.query.page;
-    const perPage = req.query.perPage;
-    const provider = req.query.provider;
-    const type = req.query.type;
-
-    const result = await gogoanime.fetchRecentEpisodes(type, page, perPage);
-    res.status(200).send(result);
-};
-
 const recentEpisodesRoute = async (req, res) => {
     const page = req.query.page;
     const perPage = req.query.perPage;
@@ -149,8 +132,6 @@ export default {
     popularRoute,
     recentEpisodesRoute,
     watchRoute,
-    gogoInfoRoute,
-    gogoanimeRecentEpisodesRoute,
     advancedSearchRoute,
     AiringScheduleRoute,
     EpisodelistById,
