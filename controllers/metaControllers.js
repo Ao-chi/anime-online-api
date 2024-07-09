@@ -24,6 +24,13 @@ const advancedSearchRoute = async (req, res) => {
             });
         }
 
+        if (sort) sort = JSON.parse(sort);
+        // if (sort) {
+        //     sort = sort.map((sort) => {
+        //         console.log(sort);
+        //         return sort.charAt(0).toUpperCase() + sort.slice(1);
+        //     });
+        // }
         const result = await anilist.advancedSearch(
             query,
             type,
@@ -40,6 +47,7 @@ const advancedSearchRoute = async (req, res) => {
 
         // Send the result as a response
         res.json(result);
+        console.log(result);
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: error.message });
