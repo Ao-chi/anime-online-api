@@ -4,6 +4,8 @@ import zoroControllers from "../controllers/zoroControllers.js";
 
 import apicache from "apicache";
 import gogoanimeControllers from "../controllers/gogoanimeControllers.js";
+import authController from "../controllers/authController.js";
+
 let cache = apicache.middleware;
 
 const metaRouter = express.Router();
@@ -23,6 +25,8 @@ const {
 const { zoroInfoRoute, zoroWatchRoute, zoroRecentEpisodes } = zoroControllers;
 
 const { gogoInfoRoute, gogoanimeRecentEpisodesRoute } = gogoanimeControllers;
+
+const { redirectToAniList, handleCallback } = authController;
 
 metaRouter.get("/", (req, res) => {
     res.send("welcome to Anime API");
@@ -59,5 +63,10 @@ metaRouter.get("/zoro/recent-episode", cache("2 minutes"), zoroRecentEpisodes);
 metaRouter.get("/gogoanime/info/:aniId", cache("2 minutes"), gogoInfoRoute);
 
 metaRouter.get("/gogoanime/recent-episode", cache("2 minutes"), gogoanimeRecentEpisodesRoute);
+
+// auth route
+
+metaRouter.get("/authorize", redirectToAniList);
+metaRouter.post("/token", handleCallback);
 
 export default { metaRouter };

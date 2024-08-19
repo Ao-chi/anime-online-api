@@ -1,4 +1,5 @@
 import { META, ANIME } from "@consumet/extensions";
+
 const anilist = new META.Anilist();
 const gogoanime = new ANIME.Gogoanime();
 
@@ -47,7 +48,7 @@ const advancedSearchRoute = async (req, res) => {
 
         // Send the result as a response
         res.json(result);
-        console.log(result);
+        // console.log(result);
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: error.message });
