@@ -34,7 +34,7 @@ const handleCallback = async (req, res) => {
     } catch (error) {
         console.log(error.response.data, "new err");
 
-        res.status(500).json({ error: "Failed to obtain access token" });
+        res.status(500).json({ error: error.response.data });
     }
 };
 
