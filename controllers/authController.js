@@ -31,11 +31,11 @@ const handleCallback = async (req, res) => {
         // Access token obtained
         const { access_token, refresh_token, token_type } = response.data;
         // console.log(response.data);
-
+        console.log("Received access token:", response.data);
         res.json(response.data);
     } catch (error) {
         console.log(error.response.data, "new err");
-
+        console.error("Error during token exchange:", error.message);
         res.status(500).json({ error: error.response.data || error });
     }
 };
