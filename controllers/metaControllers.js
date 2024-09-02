@@ -16,6 +16,7 @@ const advancedSearchRoute = async (req, res) => {
     try {
         // Extract query parameters from the request
         let { query, type, page, perPage, format, sort, genres, id, year, status, season } = req.query;
+        console.log(req.query);
 
         // Parse the genres parameter as JSON
         genres = genres ? JSON.parse(genres) : undefined;

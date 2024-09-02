@@ -26,7 +26,18 @@ const { zoroInfoRoute, zoroWatchRoute, zoroRecentEpisodes } = zoroControllers;
 
 const { gogoInfoRoute, gogoanimeRecentEpisodesRoute } = gogoanimeControllers;
 
-const { redirectToAniList, handleCallback } = authController;
+const {
+    redirectToAniList,
+    handleCallback,
+    getUserData,
+    fetchUserAnimeList,
+    getMediaListStatus,
+    addToMediaListCollection,
+    toggleFavourites,
+    getFavouritesAnime,
+    deleteMediaListEntry,
+    getIndividualFavourite,
+} = authController;
 
 metaRouter.get("/", (req, res) => {
     res.send("welcome to Anime API");
@@ -68,5 +79,13 @@ metaRouter.get("/gogoanime/recent-episode", cache("2 minutes"), gogoanimeRecentE
 
 metaRouter.get("/authorize", redirectToAniList);
 metaRouter.post("/token", handleCallback);
+metaRouter.get("/user", getUserData);
+metaRouter.get("/user/anime-list", fetchUserAnimeList);
+metaRouter.get("/user/media-list-status", getMediaListStatus);
+metaRouter.get("/user/add/media-list-entry", addToMediaListCollection);
+metaRouter.get("/user/add/favourite", toggleFavourites);
+metaRouter.get("/user/anime/favourite", getFavouritesAnime);
+metaRouter.get("/user/delete/media-list-entry", deleteMediaListEntry);
+metaRouter.get("/user/get/favourite", getIndividualFavourite);
 
 export default { metaRouter };
