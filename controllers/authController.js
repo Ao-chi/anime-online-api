@@ -13,7 +13,7 @@ const handleCallback = async (req, res) => {
     console.log("Authorization code received:", code);
     try {
         const response = await axios.post(
-            `${process.env.ANILIST_TOKEN_URI}`,
+            process.env.ANILIST_TOKEN_URI,
             {
                 client_id: process.env.CLIENT_ID,
                 client_secret: process.env.CLIENT_SECRET,
