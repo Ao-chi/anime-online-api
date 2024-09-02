@@ -10,7 +10,7 @@ const redirectToAniList = (req, res) => {
 const handleCallback = async (req, res) => {
     const { code } = req.body;
 
-    // console.log("Authorization code received:", code);
+    console.log("Authorization code received:", code);
     try {
         const response = await axios.post(
             `${process.env.ANILIST_TOKEN_URI}`,
