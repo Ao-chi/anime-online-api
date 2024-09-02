@@ -1,4 +1,6 @@
 import axios from "axios";
+import dotenv from "dotenv";
+dotenv.config();
 
 // Handle redirect to AniList authorization
 const redirectToAniList = (req, res) => {
