@@ -11,6 +11,10 @@ const handleCallback = async (req, res) => {
     const { code } = req.body;
 
     console.log("Authorization code received:", code);
+    if (!process.env.ANILIST_TOKEN_URI) {
+        console.error("ANILIST_TOKEN_URI is undefined");
+        return res.status(500).json({ error: "Server configuration error" });
+    }
     try {
         const response = await axios.post(
             process.env.ANILIST_TOKEN_URI,
