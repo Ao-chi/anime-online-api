@@ -34,8 +34,8 @@ const handleCallback = async (req, res) => {
         console.log("Received access token:", response.data);
         res.json(response.data);
     } catch (error) {
-        console.log(error.response.data, "new err");
         console.error("Error during token exchange:", error.message);
+        console.log(error.response.data, "new err");
         res.status(500).json({ error: error.response.data || error });
     }
 };
