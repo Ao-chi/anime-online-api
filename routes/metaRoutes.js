@@ -57,7 +57,7 @@ metaRouter.get("/recent-episode", cache("2 minutes"), recentEpisodesRoute);
 
 metaRouter.get("/watch/:epId", watchRoute);
 
-metaRouter.get("/airing-schedule", AiringScheduleRoute);
+metaRouter.get("/airing-schedule", cache("40 seconds"), AiringScheduleRoute);
 
 metaRouter.get("/meta/episodelist-by-id/:animeId", EpisodelistById);
 
@@ -79,13 +79,13 @@ metaRouter.get("/gogoanime/recent-episode", cache("2 minutes"), gogoanimeRecentE
 
 metaRouter.get("/authorize", redirectToAniList);
 metaRouter.post("/token", handleCallback);
-metaRouter.get("/user", getUserData);
-metaRouter.get("/user/anime-list", fetchUserAnimeList);
+metaRouter.get("/user", cache("1 minute"), getUserData);
+metaRouter.get("/user/anime-list", cache("40 seconds"), fetchUserAnimeList);
 metaRouter.get("/user/media-list-status", getMediaListStatus);
 metaRouter.get("/user/add/media-list-entry", addToMediaListCollection);
 metaRouter.get("/user/add/favourite", toggleFavourites);
-metaRouter.get("/user/anime/favourite", getFavouritesAnime);
+metaRouter.get("/user/anime/favourite", cache("40 seconds"), getFavouritesAnime);
 metaRouter.get("/user/delete/media-list-entry", deleteMediaListEntry);
-metaRouter.get("/user/get/favourite", getIndividualFavourite);
+metaRouter.get("/user/get/favourite", cache("40 seconds"), getIndividualFavourite);
 
 export default { metaRouter };

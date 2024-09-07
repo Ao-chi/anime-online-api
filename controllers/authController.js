@@ -13,10 +13,10 @@ const handleCallback = async (req, res) => {
     const { code } = req.body;
 
     console.log("Authorization code received:", code);
-    // if (!process.env.ANILIST_TOKEN_URI) {
-    //     console.error("ANILIST_TOKEN_URI is undefined");
-    //     return res.status(500).json({ error: "Server configuration error" });
-    // }
+    if (!process.env.ANILIST_TOKEN_URI) {
+        console.error("ANILIST_TOKEN_URI is undefined");
+        return res.status(500).json({ error: "Server configuration error" });
+    }
     if (process.env.CLIENT_SECRET) {
         console.log("secret available");
     }
@@ -28,7 +28,7 @@ const handleCallback = async (req, res) => {
     }
     try {
         const response = await axios.post(
-            "https://anilist.co/api/v2/oauth/token",
+            process.env.ANILIST_TOKEN_URI,
             {
                 client_id: process.env.CLIENT_ID,
                 client_secret: process.env.CLIENT_SECRET,
