@@ -657,6 +657,119 @@ const getFavouritesAnime = async (req, res) => {
         res.status(500).json({ error: "Failed to fetch favourites list" });
     }
 };
+
+export const fetchUserAnimeListAll = async (req, res) => {
+    const { access_token, userId } = req.query;
+
+    if (!access_token || !userId) {
+        return res.status(400).json({ error: "Token and username are required" });
+    }
+
+    const query = `
+      query {
+        MediaListCollection(userId: ${userId}, type: ANIME) {
+          lists {
+            name
+            status
+            entries {
+              media {
+                id
+                idMal
+                title {
+                  romaji
+                  english
+                  native
+                  userPreferred
+                }
+                coverImage {
+                  large
+                  color
+                }
+                bannerImage   
+                episodes
+                status
+                averageScore
+                meanScore
+                format
+                description 
+                duration
+                season
+                seasonYear
+                startDate {
+                    year
+                    month
+                    day
+                }
+                endDate {
+                    year
+                    month
+                    day
+                }
+                genres
+                synonyms
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const variables = {
+        userId: parseInt(userId),
+    };
+    try {
+        const response = await axios.post(
+            process.env.ANILIST_API_URL,
+            { query },
+            {
+                headers: {
+                    Authorization: `Bearer ${access_token}`,
+                },
+            }
+        );
+        const mediaLists = response.data.data.MediaListCollection.lists.map((list) => ({
+            name: list.name,
+            status: list.status,
+            entries: list.entries.map((entry) => ({
+                malId: entry.media.idMal, // Rename idMal to malId
+                id: entry.media.id, // Rename id to anilistId
+                title: entry.media.title,
+                image: entry.media.coverImage.large, // Rename coverImage to cover
+                cover: entry.media.bannerImage, // Rename bannerImage to banner
+                episodes: entry.media.episodes,
+                status:
+                    entry.media.status == "RELEASING"
+                        ? "ONGOING"
+                        : entry.media.status == "FINISHED"
+                        ? "COMPLETED"
+                        : entry.media.status == "NOT_YET_RELEASED"
+                        ? "NOT_YET_AIRED"
+                        : entry.media.status == "CANCELLED"
+                        ? "CANCELLED"
+                        : entry.media.status == "HIATUS"
+                        ? "HIATUS"
+                        : "UNKNOWN",
+                rating: entry.media.averageScore, // Rename averageScore to score
+                format: entry.media.format,
+                description: entry.media.description,
+                duration: entry.media.duration,
+                season: entry.media.season,
+                releaseDate: entry.media.seasonYear,
+                startDate: entry.media.startDate,
+                endDate: entry.media.endDate,
+                genres: entry.media.genres,
+                synonyms: entry.media.synonyms,
+            })),
+        }));
+        res.json({ mediaLists });
+
+        // res.json(response.data.data.MediaListCollection);
+    } catch (error) {
+        console.error("Error fetching animelist:", error.response?.data || error.message);
+        res.status(500).json({ error: "Failed to fetch anime list" });
+    }
+};
+
 export default {
     redirectToAniList,
     handleCallback,
@@ -669,4 +782,5 @@ export default {
     updateMediaListCollection,
     deleteMediaListEntry,
     getIndividualFavourite,
+    fetchUserAnimeListAll,
 };

@@ -37,6 +37,7 @@ const {
     getFavouritesAnime,
     deleteMediaListEntry,
     getIndividualFavourite,
+    fetchUserAnimeListAll,
 } = authController;
 
 metaRouter.get("/", (req, res) => {
@@ -57,7 +58,7 @@ metaRouter.get("/recent-episode", cache("2 minutes"), recentEpisodesRoute);
 
 metaRouter.get("/watch/:epId", watchRoute);
 
-metaRouter.get("/airing-schedule", cache("40 seconds"), AiringScheduleRoute);
+metaRouter.get("/airing-schedule", cache("2 minutes"), AiringScheduleRoute);
 
 metaRouter.get("/meta/episodelist-by-id/:animeId", EpisodelistById);
 
@@ -81,6 +82,7 @@ metaRouter.get("/authorize", redirectToAniList);
 metaRouter.post("/token", handleCallback);
 metaRouter.get("/user", cache("1 minute"), getUserData);
 metaRouter.get("/user/anime-list", cache("40 seconds"), fetchUserAnimeList);
+metaRouter.get("/user/anime-list-all", cache("60 seconds"), fetchUserAnimeListAll);
 metaRouter.get("/user/media-list-status", getMediaListStatus);
 metaRouter.get("/user/add/media-list-entry", addToMediaListCollection);
 metaRouter.get("/user/add/favourite", toggleFavourites);
