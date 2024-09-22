@@ -27,8 +27,9 @@ import { META } from "@consumet/extensions";
 const meta = new META.Anilist();
 
 const episodes = async () => {
-    const a = await meta.fetchEpisodesListById(164212);
-    console.log(a);
+    // const a = await meta.fetchEpisodesListById(164212);
+    const a = await meta.fetchAnimeInfo(12189, true);
+    console.log(a.episodes);
 };
 
-// episodes();
+episodes();
