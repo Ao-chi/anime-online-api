@@ -48,7 +48,7 @@ metaRouter.get("/search/:query", searchRoute);
 
 metaRouter.get("/advanced-search", advancedSearchRoute);
 
-metaRouter.get("/meta/info/:aniId", cache("2 minutes"), infoRoute);
+metaRouter.get("/meta/info/:aniId", cache("20 seconds"), infoRoute);
 
 metaRouter.get("/trending?", cache("2 minutes"), trendingRoute);
 

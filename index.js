@@ -20,7 +20,7 @@ app.use("/api.animeonline/", metaRouter);
 
 app.listen(port, () => console.log(`Server running on port: http://localhost:${port}`));
 
-cron.job.start();
+// cron.job.start();
 
 import { META } from "@consumet/extensions";
 
@@ -29,7 +29,7 @@ const meta = new META.Anilist();
 const episodes = async () => {
     // const a = await meta.fetchEpisodesListById(164212);
     const a = await meta.fetchAnimeInfo(12189, true);
-    console.log(a.episodes);
+    // console.log(a.episodes);
 };
 
-episodes();
+// episodes();
