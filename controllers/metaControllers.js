@@ -59,9 +59,16 @@ const advancedSearchRoute = async (req, res) => {
 const infoRoute = async (req, res) => {
     const aniId = req.params.aniId;
     const isDub = req.query.isDub;
+    console.log("isDub value:", isDub);
 
-    const result = await anilist.fetchAnimeInfo(aniId, isDub);
-    res.status(200).send(result);
+    try {
+        const result = await anilist.fetchAnimeInfo(aniId, isDub);
+        // console.log("Fetched result:", result); // Ensure this logs the fetched data
+        res.status(200).send(result);
+    } catch (err) {
+        console.error("Error fetching anime info:", err); // Log errors
+        res.status(500).send({ error: "Failed to fetch anime info" });
+    }
 };
 
 const trendingRoute = async (req, res) => {
