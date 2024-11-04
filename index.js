@@ -20,7 +20,7 @@ app.use("/api.animeonline/", metaRouter);
 
 app.listen(port, () => console.log(`Server running on port: http://localhost:${port}`));
 
-cron.job.start();
+// cron.job.start();
 
 import { META } from "@consumet/extensions";
 

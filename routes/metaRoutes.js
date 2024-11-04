@@ -1,10 +1,12 @@
 import express from "express";
-import metaControllers from "../controllers/metaControllers.js";
+import metaAnime from "../controllers/meta/metaAnime.js";
 import zoroControllers from "../controllers/zoroControllers.js";
 
 import apicache from "apicache";
 import gogoanimeControllers from "../controllers/gogoanimeControllers.js";
 import authController from "../controllers/authController.js";
+import metaManga from "../controllers/meta/metaManga.js";
+import mangaDex from "../controllers/manga/mangaDex.js";
 
 let cache = apicache.middleware;
 
@@ -20,7 +22,9 @@ const {
     advancedSearchRoute,
     AiringScheduleRoute,
     EpisodelistById,
-} = metaControllers;
+} = metaAnime;
+
+const { MangaInfo, MangaRead, getTtrendingManga } = metaManga;
 
 const { zoroInfoRoute, zoroWatchRoute, zoroRecentEpisodes } = zoroControllers;
 
@@ -40,9 +44,12 @@ const {
     fetchUserAnimeListAll,
 } = authController;
 
+const { getMangaDexInfo } = mangaDex;
 metaRouter.get("/", (req, res) => {
     res.send("welcome to Anime API");
 });
+
+// meta anime
 
 metaRouter.get("/search/:query", searchRoute);
 
@@ -61,6 +68,13 @@ metaRouter.get("/watch/:epId", watchRoute);
 metaRouter.get("/airing-schedule", cache("2 minutes"), AiringScheduleRoute);
 
 metaRouter.get("/meta/episodelist-by-id/:animeId", EpisodelistById);
+
+// manga
+
+metaRouter.get("/meta/manga/info/:id", cache("20 seconds"), MangaInfo);
+metaRouter.get("/meta/manga/read", MangaRead);
+metaRouter.get("/meta/manga/trending", getTtrendingManga);
+metaRouter.get("/manga/mangadex/info/:id", cache("20 seconds"), getMangaDexInfo);
 
 //zoro
 

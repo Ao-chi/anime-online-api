@@ -1,7 +1,8 @@
 import { META, ANIME } from "@consumet/extensions";
+import { PROVIDERS_LIST } from "@consumet/extensions";
 
 const anilist = new META.Anilist();
-const gogoanime = new ANIME.Gogoanime();
+let manga = new META.Anilist.Manga();
 
 const searchRoute = async (req, res) => {
     const query = req.params.query;
@@ -16,7 +17,7 @@ const advancedSearchRoute = async (req, res) => {
     try {
         // Extract query parameters from the request
         let { query, type, page, perPage, format, sort, genres, id, year, status, season } = req.query;
-        console.log(req.query);
+        console.log(req.query, "type:", type);
 
         // Parse the genres parameter as JSON
         genres = genres ? JSON.parse(genres) : undefined;
@@ -139,8 +140,6 @@ const EpisodelistById = async (req, res) => {
     console.log(result);
     res.status(200).send(result);
 };
-
-// zoro
 
 export default {
     searchRoute,
