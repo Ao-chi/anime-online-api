@@ -60,10 +60,11 @@ const advancedSearchRoute = async (req, res) => {
 const infoRoute = async (req, res) => {
     const aniId = req.params.aniId;
     const isDub = req.query.isDub;
-    console.log("isDub value:", isDub);
+    const provider = req.query.provider;
+    console.log("isDub value:", isDub, "provider:", provider);
 
     try {
-        const result = await anilist.fetchAnimeInfo(aniId, isDub);
+        const result = await anilist.fetchAnimeInfo(aniId, isDub, provider);
         // console.log("Fetched result:", result); // Ensure this logs the fetched data
         res.status(200).send(result);
     } catch (err) {
