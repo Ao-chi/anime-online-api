@@ -1,13 +1,15 @@
 import { META } from "@consumet/extensions";
 import { PROVIDERS_LIST } from "@consumet/extensions";
 import axios from "axios";
-import { anilistTrendingMangaQuery } from "../../utils/anilist-queries.js";
+import { anilistMangaQuery, anilistTrendingMangaQuery } from "../../utils/anilist-queries.js";
 
 let manga = new META.Anilist.Manga();
+const ANIFY_BASE_URL = "https://anify.eltik.cc";
 
 const MangaInfo = async (req, res) => {
     const id = req.params.id;
     const provider = req.query.provider;
+    console.log(id, provider);
 
     if (provider) {
         const possibleProvider = PROVIDERS_LIST.MANGA.find(
@@ -24,7 +26,7 @@ const MangaInfo = async (req, res) => {
 
     try {
         const result = await manga.fetchMangaInfo(id);
-        // console.log(result);
+        console.log(result);
         return res.status(200).send(result);
     } catch (error) {
         console.log(error);
@@ -34,6 +36,7 @@ const MangaInfo = async (req, res) => {
 
 const MangaRead = async (req, res) => {
     const chapterId = req.query.chapterId;
+    const mangaId = req.query.mangaId;
     const provider = req.query.provider;
 
     if (provider) {
@@ -51,7 +54,7 @@ const MangaRead = async (req, res) => {
 
     try {
         const result = await manga
-            .fetchChapterPages(chapterId)
+            .fetchChapterPages(chapterId, mangaId)
             .catch((err) => reply.status(404).send({ message: err.message }));
 
         return res.status(200).send(result);
@@ -62,7 +65,7 @@ const MangaRead = async (req, res) => {
 };
 
 const getTtrendingManga = async (req, res) => {
-    const { page = 1, perPage = 12, type = "MANGA" } = req.query;
+    const { page = 1, perPage = 12, type = "MANGA", countryOfOrigin = "JP" } = req.query;
 
     try {
         const response = await axios.post(process.env.ANILIST_API_URL, {
@@ -71,6 +74,7 @@ const getTtrendingManga = async (req, res) => {
                 page: parseInt(page),
                 perPage: parseInt(perPage),
                 type: type.toUpperCase(),
+                countryOfOrigin: countryOfOrigin,
             },
         });
 
@@ -128,8 +132,106 @@ const getTtrendingManga = async (req, res) => {
     }
 };
 
+const getRecentManga = async (req, res) => {
+    const { page = 1, perPage = 12, type = "manga" } = req.query;
+
+    try {
+        const response = await axios.get(`${ANIFY_BASE_URL}/recent`, {
+            params: { type, page, perPage },
+        });
+
+        return res.status(200).send(response.data);
+    } catch (error) {
+        return res.status(500).send({
+            message: "Failed to get Recent Manga",
+            error: error.response?.data || error.message,
+        });
+    }
+};
+
+const getPopularManga = async (req, res) => {
+    const {
+        page = 1,
+        perPage = 20,
+        type = "MANGA",
+        sort = "POPULARITY_DESC",
+        countryOfOrigin = "JP",
+    } = req.query;
+
+    try {
+        const sortArray = Array.isArray(sort)
+            ? sort.map((s) => s.toUpperCase()) // If already an array, map each value to uppercase
+            : sort.split(",").map((s) => s.trim().toUpperCase());
+
+        const response = await axios.post(process.env.ANILIST_API_URL, {
+            query: anilistMangaQuery,
+            variables: {
+                page: parseInt(page),
+                perPage: parseInt(perPage),
+                type: type.toUpperCase(),
+                sort: sortArray,
+                countryOfOrigin: countryOfOrigin,
+            },
+        });
+
+        const magaPopular = response.data.data.Page;
+        const pageInfo = {
+            total: magaPopular.pageInfo.total, // Rename total to totalItems
+            itemsPerPage: magaPopular.pageInfo.perPage, // Rename perPage to itemsPerPage
+            currentPage: magaPopular.pageInfo.currentPage,
+            hasNext: magaPopular.pageInfo.hasNextPage, // Rename hasNextPage to hasNext
+        };
+
+        const results = magaPopular.media.map((anime) => ({
+            malId: anime.idMal, // Rename idMal to malId
+            id: anime.id, // Rename id to anilistId
+            title: anime.title,
+            image: anime.coverImage.large, // Rename coverImage to cover
+            cover: anime.bannerImage, // Rename bannerImage to banner
+            chapters: anime.chapters,
+            status:
+                anime.status == "RELEASING"
+                    ? "ONGOING"
+                    : anime.status == "FINISHED"
+                    ? "COMPLETED"
+                    : anime.status == "NOT_YET_RELEASED"
+                    ? "NOT_YET_AIRED"
+                    : anime.status == "CANCELLED"
+                    ? "CANCELLED"
+                    : anime.status == "HIATUS"
+                    ? "HIATUS"
+                    : "UNKNOWN",
+            rating: anime.averageScore, // Rename averageScore to score
+            format: anime.format,
+            description: anime.description,
+            duration: anime.duration,
+            season: anime.season,
+            releaseDate: anime.seasonYear,
+            startDate: anime.startDate,
+            endDate: anime.endDate,
+            genres: anime.genres,
+            synonyms: anime.synonyms,
+        }));
+
+        const modifiedResponse = {
+            pageInfo,
+            results,
+        };
+
+        return res.status(200).json(modifiedResponse);
+    } catch (error) {
+        console.log(error);
+
+        return res
+            .status(500)
+            .send({ message: "Something went wrong, unable to get POPULAR Manga", error: error });
+    }
+};
+
 export default {
     MangaInfo,
     MangaRead,
     getTtrendingManga,
+    getRecentManga,
+    getPopularManga,
 };

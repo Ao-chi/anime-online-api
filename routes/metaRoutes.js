@@ -7,6 +7,8 @@ import gogoanimeControllers from "../controllers/gogoanimeControllers.js";
 import authController from "../controllers/authController.js";
 import metaManga from "../controllers/meta/metaManga.js";
 import mangaDex from "../controllers/manga/mangaDex.js";
+import mangakakalot from "../controllers/manga/mangakakalot.js";
+import userController from "../controllers/user/userController.js";
 
 let cache = apicache.middleware;
 
@@ -24,7 +26,7 @@ const {
     EpisodelistById,
 } = metaAnime;
 
-const { MangaInfo, MangaRead, getTtrendingManga } = metaManga;
+const { MangaInfo, MangaRead, getTtrendingManga, getRecentManga, getPopularManga } = metaManga;
 
 const { zoroInfoRoute, zoroWatchRoute, zoroRecentEpisodes } = zoroControllers;
 
@@ -44,7 +46,12 @@ const {
     fetchUserAnimeListAll,
 } = authController;
 
+const { fetchListByStatus } = userController;
+
 const { getMangaDexInfo } = mangaDex;
+
+const { getMangakakalotInfo, getMangakakalotChapters } = mangakakalot;
+
 metaRouter.get("/", (req, res) => {
     res.send("welcome to Anime API");
 });
@@ -74,7 +81,12 @@ metaRouter.get("/meta/episodelist-by-id/:animeId", EpisodelistById);
 metaRouter.get("/meta/manga/info/:id", cache("20 seconds"), MangaInfo);
 metaRouter.get("/meta/manga/read", MangaRead);
 metaRouter.get("/meta/manga/trending", getTtrendingManga);
+metaRouter.get("/meta/manga/popular", getPopularManga);
+metaRouter.get("/meta/manga/recent", cache("2 minutes"), getRecentManga);
+
 metaRouter.get("/manga/mangadex/info/:id", cache("20 seconds"), getMangaDexInfo);
+metaRouter.get("/manga/mangakakalot/info/:id", cache("20 seconds"), getMangakakalotInfo);
+metaRouter.get("/manga/mangakakalot/read/:chapterId", cache("20 seconds"), getMangakakalotChapters);
 
 //zoro
 
@@ -103,5 +115,9 @@ metaRouter.get("/user/add/favourite", toggleFavourites);
 metaRouter.get("/user/anime/favourite", cache("40 seconds"), getFavouritesAnime);
 metaRouter.get("/user/delete/media-list-entry", deleteMediaListEntry);
 metaRouter.get("/user/get/favourite", cache("40 seconds"), getIndividualFavourite);
+
+// anilist routes
+
+metaRouter.get("/user/medialist/anime", cache("40 seconds"), fetchListByStatus);
 
 export default { metaRouter };

@@ -61,10 +61,15 @@ const infoRoute = async (req, res) => {
     const aniId = req.params.aniId;
     const isDub = req.query.isDub;
     const provider = req.query.provider;
+    const referer = "https://anilist.co";
     console.log("isDub value:", isDub, "provider:", provider);
 
     try {
-        const result = await anilist.fetchAnimeInfo(aniId, isDub, provider);
+        const result = await anilist.fetchAnimeInfo(aniId, isDub, provider, {
+            headers: {
+                Referer: referer,
+            },
+        });
         // console.log("Fetched result:", result); // Ensure this logs the fetched data
         res.status(200).send(result);
     } catch (err) {

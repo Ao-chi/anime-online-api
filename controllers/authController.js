@@ -246,6 +246,8 @@ const getMediaListStatus = async (req, res) => {
                 }
                 updatedAt
                 notes
+                repeat
+                progressVolumes
             }
         }
     `;
@@ -668,11 +670,15 @@ export const fetchUserAnimeListAll = async (req, res) => {
     const query = `
       query {
         MediaListCollection(userId: ${userId}, type: ANIME) {
+       
           lists {
             name
             status
             entries {
-              media {
+              progress
+              progressVolumes
+              score
+              media { 
                 id
                 idMal
                 title {
@@ -731,6 +737,9 @@ export const fetchUserAnimeListAll = async (req, res) => {
             name: list.name,
             status: list.status,
             entries: list.entries.map((entry) => ({
+                progress: entry.progress,
+                progressVolumes: entry.progressVolumes,
+                score: entry.score,
                 malId: entry.media.idMal, // Rename idMal to malId
                 id: entry.media.id, // Rename id to anilistId
                 title: entry.media.title,
