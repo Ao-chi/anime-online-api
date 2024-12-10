@@ -4,33 +4,77 @@ import axios from "axios";
 import { anilistMangaQuery, anilistTrendingMangaQuery } from "../../utils/anilist-queries.js";
 
 let manga = new META.Anilist.Manga();
+
 const ANIFY_BASE_URL = "https://anify.eltik.cc";
 
 const MangaInfo = async (req, res) => {
     const id = req.params.id;
-    const provider = req.query.provider;
-    console.log(id, provider);
-
-    if (provider) {
-        const possibleProvider = PROVIDERS_LIST.MANGA.find(
-            (p) => p.name.toLowerCase() === provider.toLowerCase()
-        );
-        manga = new META.Anilist.Manga(possibleProvider);
-    } else {
-        manga = new META.Anilist.Manga();
-    }
+    const provider = req.query.provider || "mangasee";
+    // baseURL: "https://goodproxy.goodproxy.workers.dev/fetch",
+    // console.log(id, provider);
 
     if (id === undefined || id === null) {
         return res.status(400).send({ message: "No id provided" });
     }
 
+    switch (provider) {
+        case "mangasee":
+            console.log("yes provider", provider);
+
+            const possibleProvider = PROVIDERS_LIST.MANGA.find(
+                (p) => p.name.toLowerCase() === provider.toLowerCase()
+            );
+
+            possibleProvider?.setProxy({
+                url: "https://goodproxy.goodproxy.workers.dev/fetch?url=",
+            });
+            manga = new META.Anilist.Manga(possibleProvider);
+            // console.log(manga);
+
+            break;
+        case "comick":
+            console.log("commick provider", provider);
+
+            const possibleProvider0 = PROVIDERS_LIST.MANGA.find(
+                (p) => p.name.toLowerCase() === provider.toLowerCase()
+            );
+
+            possibleProvider?.setProxy({
+                url: "https://goodproxy.goodproxy.workers.dev/fetch?url=",
+            });
+            manga = new META.Anilist.Manga(possibleProvider0);
+            break;
+        default:
+            console.log("not mangasee, provider is:", provider);
+            const possibleProvider1 = PROVIDERS_LIST.MANGA.find(
+                (p) => p.name.toLowerCase() === provider.toLowerCase()
+            );
+            manga = new META.Anilist.Manga(possibleProvider1);
+
+            break;
+    }
+    // if (provider) {
+    //     const possibleProvider = PROVIDERS_LIST.MANGA.find(
+    //         (p) => p.name.toLowerCase() === provider.toLowerCase()
+    //     );
+
+    //     possibleProvider?.setProxy({
+    //         url: "https://goodproxy.goodproxy.workers.dev/fetch",
+    //     });
+    //     manga = new META.Anilist.Manga(possibleProvider);
+    // } else {
+    //     console.log("no provider");
+
+    //     manga = new META.Anilist.Manga();
+    // }
+
     try {
         const result = await manga.fetchMangaInfo(id);
-        // console.log(result);
+        // console.log(manga.client.get);
         return res.status(200).send(result);
     } catch (error) {
-        console.log(error);
-        return res.status(500).send({ message: "could not get manga info" });
+        // console.log(error);
+        return res.status(500).send({ message: "could not get manga info", error: error });
     }
 };
 
