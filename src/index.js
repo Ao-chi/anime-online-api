@@ -45,11 +45,11 @@ const testProxy = async () => {
                 },
             }
         );
-        // console.log(response.data);
+        console.log(response.data);
     } catch (err) {
         console.error("Proxy Test Failed:", err.message);
     }
 };
-// testProxy();
+testProxy();
 
 // episodes();

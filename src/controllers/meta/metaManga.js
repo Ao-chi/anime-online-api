@@ -32,18 +32,7 @@ const MangaInfo = async (req, res) => {
             // console.log(manga);
 
             break;
-        case "comick":
-            console.log("commick provider", provider);
 
-            const possibleProvider0 = PROVIDERS_LIST.MANGA.find(
-                (p) => p.name.toLowerCase() === provider.toLowerCase()
-            );
-
-            possibleProvider?.setProxy({
-                url: "https://goodproxy.goodproxy.workers.dev/fetch?url=",
-            });
-            manga = new META.Anilist.Manga(possibleProvider0);
-            break;
         default:
             console.log("not mangasee, provider is:", provider);
             const possibleProvider1 = PROVIDERS_LIST.MANGA.find(
@@ -73,7 +62,7 @@ const MangaInfo = async (req, res) => {
         // console.log(manga.client.get);
         return res.status(200).send(result);
     } catch (error) {
-        // console.log(error);
+        console.log(error);
         return res.status(500).send({ message: "could not get manga info", error: error });
     }
 };
