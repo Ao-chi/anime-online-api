@@ -25,12 +25,10 @@ const MangaInfo = async (req, res) => {
                 (p) => p.name.toLowerCase() === provider.toLowerCase()
             );
 
-            possibleProvider?.setProxy({
+            possibleProvider.setProxy({
                 url: "https://goodproxy.goodproxy.workers.dev/fetch?url=",
             });
             manga = new META.Anilist.Manga(possibleProvider);
-            // console.log(manga);
-
             break;
 
         default:
