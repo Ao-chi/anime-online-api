@@ -102,7 +102,6 @@ const recentEpisodesRoute = async (req, res) => {
     try {
         const result = await anilist.fetchRecentEpisodes(provider, page, perPage);
 
-        // Send a successful response with the result
         res.status(200).send(result);
     } catch (error) {
         // Handle errors and send a 500 internal server error response
