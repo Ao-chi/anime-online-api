@@ -26,8 +26,9 @@ const MangaInfo = async (req, res) => {
             );
 
             possibleProvider.setProxy({
-                url: "https://goodproxy.goodproxy.workers.dev/fetch?url=",
+                url: "https://goodproxy.goodproxy.workers.dev/fetch?ref=https://mangasee123.com&url=",
             });
+
             manga = new META.Anilist.Manga(possibleProvider);
             break;
 
@@ -57,7 +58,7 @@ const MangaInfo = async (req, res) => {
 
     try {
         const result = await manga.fetchMangaInfo(id);
-        // console.log(manga.client.get);
+
         return res.status(200).send(result);
     } catch (error) {
         console.log(error);
