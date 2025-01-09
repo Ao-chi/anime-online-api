@@ -1,11 +1,102 @@
 import { META } from "@consumet/extensions";
 import { PROVIDERS_LIST } from "@consumet/extensions";
 import axios from "axios";
-import { anilistMangaQuery, anilistTrendingMangaQuery } from "../../utils/anilist-queries.js";
+import {
+    anilistMangaQuery,
+    anilistMediaTitlesQuery,
+    anilistTrendingMangaQuery,
+} from "../../utils/anilist-queries.js";
+import { parse } from "dotenv";
+import distance from "jaro-winkler";
+import { findBestMatch, sanitize } from "../../utils/utils.js";
 
 let manga = new META.Anilist.Manga();
 
 const ANIFY_BASE_URL = "https://anify.eltik.cc";
+
+const getMangaTitle = async (id) => {
+    try {
+        const meta = new META.Anilist();
+        return (await manga.fetchMangaInfo(id)).title;
+    } catch (error) {
+        console.error(error);
+        return {
+            romaji: "",
+            native: "",
+            english: "",
+        };
+    }
+};
+
+const findOriginalTitle = (title, titles) => {
+    const { romaji, english, native } = title;
+
+    const romajiBestMatch = findBestMatch(romaji, titles);
+    const englishBestMatch = findBestMatch(english ? english : "", titles);
+    const nativeBestMatch = findBestMatch(native ? native : "", titles);
+
+    console.log(`romaji = ${romajiBestMatch}, english = ${englishBestMatch}, native = ${nativeBestMatch}`);
+
+    const romajiScore = romajiBestMatch ? distance(romaji, romajiBestMatch) : 0;
+    const englishScore = englishBestMatch ? distance(english ? english : "", englishBestMatch) : 0;
+    const nativeScore = nativeBestMatch ? distance(native ? native : "", nativeBestMatch) : 0;
+
+    if (romajiScore >= englishScore && romajiScore >= nativeScore) {
+        return romajiBestMatch;
+    } else if (englishScore >= romajiScore && englishScore >= nativeScore) {
+        return englishBestMatch;
+    } else {
+        return nativeBestMatch;
+    }
+};
+
+const getMangakakalotId = async (req, res) => {
+    const id = req.params.id;
+
+    if (id === undefined || id === null) {
+        return res.status(400).send({ message: "No id provided" });
+    }
+
+    let title;
+    let slug;
+    let searchRes;
+    const provider = "mangakakalot";
+
+    try {
+        title = await getMangaTitle(id);
+        // slug = title.romaji.replace(/[^0-9a-zA-Z]+/g, " ");
+        console.log("titles", title);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Failed to fetch titles", error });
+    }
+
+    const possibleProvider = PROVIDERS_LIST.MANGA.find(
+        (p) => p.name.toLowerCase() === provider.toLowerCase()
+    );
+
+    manga = new META.Anilist.Manga(possibleProvider);
+    searchRes = await possibleProvider.search(sanitize(title.romaji));
+
+    // Fallback: use `title.english` if no results found
+    if (!searchRes.results.length) {
+        console.log("use en title");
+
+        searchRes = await possibleProvider.search(sanitize(title.english));
+    }
+
+    const mangakakalotTitles = searchRes.results
+        .filter((manga) => manga !== null) // Filter out null values
+        .map((manga) => manga.title); // Extract the title property
+
+    const bestTitle = findOriginalTitle(title, mangakakalotTitles);
+
+    // res.status(200).json(searchRes.results);
+    const possibleManga = searchRes.results.find(
+        (manga) => bestTitle.toLowerCase() === manga.title.toLowerCase()
+    );
+    res.status(200).json(possibleManga);
+};
 
 const MangaInfo = async (req, res) => {
     const id = req.params.id;
@@ -266,4 +357,5 @@ export default {
     getTtrendingManga,
     getRecentManga,
     getPopularManga,
+    getMangakakalotId,
 };

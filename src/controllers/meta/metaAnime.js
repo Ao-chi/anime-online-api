@@ -1,7 +1,10 @@
 import { META, ANIME } from "@consumet/extensions";
 import { PROVIDERS_LIST } from "@consumet/extensions";
+import Gogoanime from "@consumet/extensions/dist/providers/anime/gogoanime.js";
+import Zoro from "@consumet/extensions/dist/providers/anime/zoro.js";
+import Anilist from "@consumet/extensions/dist/providers/meta/anilist.js";
 
-const anilist = new META.Anilist();
+let anilist = new META.Anilist();
 let manga = new META.Anilist.Manga();
 
 const searchRoute = async (req, res) => {
@@ -60,9 +63,18 @@ const advancedSearchRoute = async (req, res) => {
 const infoRoute = async (req, res) => {
     const aniId = req.params.aniId;
     const isDub = req.query.isDub;
-    const provider = req.query.provider;
+    const provider = req.query.provider || "zoro";
     const referer = "https://anilist.co";
+
     console.log("isDub value:", isDub, "provider:", provider);
+    if (provider) {
+        let possibleProvider = PROVIDERS_LIST.ANIME.find(
+            (p) => p.name.toLowerCase() === provider.toLocaleLowerCase()
+        );
+
+        anilist = new META.Anilist(possibleProvider);
+        // console.log(anilist);
+    }
 
     try {
         const result = await anilist.fetchAnimeInfo(aniId, isDub, provider, {

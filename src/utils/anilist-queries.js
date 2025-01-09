@@ -96,3 +96,13 @@ export const anilistMangaQuery = `query ($page: Int, $perPage: Int, $type: Media
        }
    }
    `;
+
+export const anilistMediaTitlesQuery = `query($id: Int) {
+   Media(id: $id) {
+    title {
+        romaji
+        english
+        native
+        userPreferred
+    }
+   }}`;

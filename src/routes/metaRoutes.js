@@ -10,6 +10,7 @@ import metaManga from "../controllers/meta/metaManga.js";
 import mangaDex from "../controllers/manga/mangaDex.js";
 import mangakakalot from "../controllers/manga/mangakakalot.js";
 import userController from "../controllers/user/userController.js";
+import anixControllers from "../controllers/anixController.js";
 
 let cache = apicache.middleware;
 
@@ -27,7 +28,8 @@ const {
     EpisodelistById,
 } = metaAnime;
 
-const { MangaInfo, MangaRead, getTtrendingManga, getRecentManga, getPopularManga } = metaManga;
+const { MangaInfo, MangaRead, getTtrendingManga, getRecentManga, getPopularManga, getMangakakalotId } =
+    metaManga;
 
 const { zoroInfoRoute, zoroWatchRoute, zoroRecentEpisodes } = zoroControllers;
 
@@ -52,6 +54,8 @@ const { fetchListByStatus } = userController;
 const { getMangaDexInfo } = mangaDex;
 
 const { getMangakakalotInfo, getMangakakalotChapters } = mangakakalot;
+
+const { anixEpisodeSources, anixInfoRoute, anixSearch, mapAnix } = anixControllers;
 
 metaRouter.get("/", (req, res) => {
     res.send("welcome to Anime API");
@@ -88,6 +92,7 @@ metaRouter.get("/meta/manga/recent", cache("2 minutes"), getRecentManga);
 metaRouter.get("/manga/mangadex/info/:id", cache("20 seconds"), getMangaDexInfo);
 metaRouter.get("/manga/mangakakalot/info/:id", cache("20 seconds"), getMangakakalotInfo);
 metaRouter.get("/manga/mangakakalot/read/:chapterId", cache("20 seconds"), getMangakakalotChapters);
+metaRouter.get("/meta/manga/mangakakalot/:id", cache("20 seconds"), getMangakakalotId);
 
 //zoro
 
@@ -103,8 +108,13 @@ metaRouter.get("/gogoanime/info/:aniId", cache("2 minutes"), gogoInfoRoute);
 
 metaRouter.get("/gogoanime/recent-episode", cache("2 minutes"), gogoanimeRecentEpisodesRoute);
 
-// auth route
+// anix
+metaRouter.get("/anix/search", cache("2 minutes"), anixSearch);
+metaRouter.get("/anix/info/:id", cache("2 minutes"), anixInfoRoute);
+metaRouter.get("/anix/watch/:id/:episodeId", anixEpisodeSources);
+metaRouter.get("/anix/map/:id", cache("20 seconds"), mapAnix);
 
+// auth route
 metaRouter.get("/authorize", redirectToAniList);
 metaRouter.post("/token", handleCallback);
 metaRouter.get("/user", cache("1 minute"), getUserData);
