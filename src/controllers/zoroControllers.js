@@ -46,6 +46,7 @@ const zoroWatchRoute = async (req, res) => {
             }
         } catch (error) {
             console.error(`Error fetching data from ${server}:`, error.message);
+            return res.status(500).send({ error: "Failed to load source." });
         }
     }
 

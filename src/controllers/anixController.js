@@ -30,6 +30,9 @@ const anixEpisodeSources = async (req, res) => {
     const id = req.params.id;
     const episodeId = req.params.episodeId;
     const server = req.query.server;
+
+    console.log(id, episodeId);
+
     try {
         const result = await anix.fetchEpisodeSources(id, episodeId);
         res.status(200).send(result);

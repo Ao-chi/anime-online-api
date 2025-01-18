@@ -176,9 +176,8 @@ const MangaRead = async (req, res) => {
     }
 
     try {
-        const result = await manga
-            .fetchChapterPages(chapterId, mangaId)
-            .catch((err) => reply.status(404).send({ message: err.message }));
+        const result = await manga.fetchChapterPages(chapterId, mangaId);
+        // .catch((err) => reply.status(404).send({ message: err.message }));
 
         return res.status(200).send(result);
     } catch (error) {
