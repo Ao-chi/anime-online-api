@@ -63,7 +63,7 @@ const advancedSearchRoute = async (req, res) => {
 const infoRoute = async (req, res) => {
     const aniId = req.params.aniId;
     const isDub = req.query.isDub;
-    const provider = req.query.provider || "zoro";
+    const provider = req.query.provider || "gogoanime";
     const referer = "https://anilist.co";
 
     console.log("isDub value:", isDub, "provider:", provider);
