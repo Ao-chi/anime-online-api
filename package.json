@@ -21,6 +21,7 @@
         "express": "^4.19.2",
         "fastest-levenshtein": "^1.0.16",
         "jaro-winkler": "^0.2.8",
+        "rimraf": "^6.0.1",
         "string-similarity": "^4.0.4"
     },
     "devDependencies": {
