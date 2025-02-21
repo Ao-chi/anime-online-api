@@ -3,6 +3,7 @@ import { PROVIDERS_LIST } from "@consumet/extensions";
 import Gogoanime from "@consumet/extensions/dist/providers/anime/gogoanime.js";
 import Zoro from "@consumet/extensions/dist/providers/anime/zoro.js";
 import Anilist from "@consumet/extensions/dist/providers/meta/anilist.js";
+import { findOriginalTitle, mapProviders, sanitize } from "../../utils/utils.js";
 
 let anilist = new META.Anilist();
 let manga = new META.Anilist.Manga();
@@ -63,17 +64,20 @@ const advancedSearchRoute = async (req, res) => {
 const infoRoute = async (req, res) => {
     const aniId = req.params.aniId;
     const isDub = req.query.isDub;
-    const provider = req.query.provider || "gogoanime";
+    const provider = req.query.provider;
     const referer = "https://anilist.co";
 
-    console.log("isDub value:", isDub, "provider:", provider);
+    // console.log("isDub value:", isDub, "provider:", provider);
+    if (!aniId) {
+        return res.status(400).send({ message: "No id provided" });
+    }
+
     if (provider) {
         let possibleProvider = PROVIDERS_LIST.ANIME.find(
             (p) => p.name.toLowerCase() === provider.toLocaleLowerCase()
         );
 
         anilist = new META.Anilist(possibleProvider);
-        // console.log(anilist);
     }
 
     try {
@@ -82,7 +86,39 @@ const infoRoute = async (req, res) => {
                 Referer: referer,
             },
         });
+
+        // mapping
+        const title = result.title;
+        const providers = ["animekai", "animepahe"];
+        // const animekai = "AnimeKai";
+
+        // const possibleProvider = PROVIDERS_LIST.ANIME.find(
+        //     (p) => p.name.toLowerCase() === animekai.toLowerCase()
+        // );
+
+        // // Perform both searches in parallel for en/romaji titles
+        // const [romajiSearchRes, englishSearchRes] = await Promise.all([
+        //     possibleProvider.search(sanitize(title.romaji)),
+        //     possibleProvider.search(sanitize(title.english)),
+        // ]);
+
+        // const searchRes = romajiSearchRes.results.length ? romajiSearchRes : englishSearchRes;
+        // const animekaiTitles = searchRes.results
+        //     .filter((anime) => anime !== null)
+        //     .map((anime) => anime.title);
+
+        // const bestTitle = findOriginalTitle(title, animekaiTitles);
+
+        // const mapped = searchRes.results.find(
+        //     (manga) => bestTitle.toLowerCase() === manga.title.toLowerCase()
+        // );
+
+        // Attach `mappedResults` to the result object
+        result.mapped = await mapProviders(title, providers);
+
         // console.log("Fetched result:", result); // Ensure this logs the fetched data
+        // Attach `mapped` to the result object
+        // result.mapped = mapped || null;
         res.status(200).send(result);
     } catch (err) {
         console.error("Error fetching anime info:", err); // Log errors

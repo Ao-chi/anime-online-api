@@ -11,6 +11,8 @@ import mangaDex from "../controllers/manga/mangaDex.js";
 import mangakakalot from "../controllers/manga/mangakakalot.js";
 import userController from "../controllers/user/userController.js";
 import anixControllers from "../controllers/anixController.js";
+import paheController from "../controllers/animepaheController.js";
+import animekaiControllers from "../controllers/animekaicontroller.js";
 
 let cache = apicache.middleware;
 
@@ -54,8 +56,9 @@ const { fetchListByStatus } = userController;
 const { getMangaDexInfo } = mangaDex;
 
 const { getMangakakalotInfo, getMangakakalotChapters } = mangakakalot;
-
 const { anixEpisodeSources, anixInfoRoute, anixSearch, mapAnix } = anixControllers;
+const { paheSearch, paheInfoRoute, paheWatchRoute } = paheController;
+const { animekaiInfo, animekaiWatch, animekaiSearch } = animekaiControllers;
 
 metaRouter.get("/", (req, res) => {
     res.send("welcome to Anime API");
@@ -64,21 +67,13 @@ metaRouter.get("/", (req, res) => {
 // meta anime
 
 metaRouter.get("/search/:query", searchRoute);
-
 metaRouter.get("/advanced-search", advancedSearchRoute);
-
 metaRouter.get("/meta/info/:aniId", cache("20 seconds"), infoRoute);
-
 metaRouter.get("/trending?", cache("2 minutes"), trendingRoute);
-
 metaRouter.get("/popular?", cache("2 minutes"), popularRoute);
-
 metaRouter.get("/recent-episode", cache("2 minutes"), recentEpisodesRoute);
-
 metaRouter.get("/watch/:epId", watchRoute);
-
 metaRouter.get("/airing-schedule", cache("2 minutes"), AiringScheduleRoute);
-
 metaRouter.get("/meta/episodelist-by-id/:animeId", EpisodelistById);
 
 // manga
@@ -97,16 +92,25 @@ metaRouter.get("/meta/manga/mangakakalot/:id", cache("20 seconds"), getMangakaka
 //zoro
 
 metaRouter.get("/zoro/info/:aniId", zoroInfoRoute);
-
 metaRouter.get("/zoro/watch/:epId", zoroWatchRoute);
-
 metaRouter.get("/zoro/recent-episode", cache("2 minutes"), zoroRecentEpisodes);
 
 // gogoanime
 
 metaRouter.get("/gogoanime/info/:aniId", cache("2 minutes"), gogoInfoRoute);
-
 metaRouter.get("/gogoanime/recent-episode", cache("2 minutes"), gogoanimeRecentEpisodesRoute);
+
+// animepahe
+
+metaRouter.get("/animepahe/search", cache("10 seconds"), paheSearch);
+metaRouter.get("/animepahe/info/:id", cache("20 seconds"), paheInfoRoute);
+metaRouter.get("/animepahe/watch/:episodeId(*)", paheWatchRoute);
+
+// animekai
+
+metaRouter.get("/animekai/info/:id", cache("20 seconds"), animekaiInfo);
+metaRouter.get("/animekai/watch/:epId", animekaiWatch);
+metaRouter.get("/animekai/search", cache("2 minutes"), animekaiSearch);
 
 // anix
 metaRouter.get("/anix/search", cache("2 minutes"), anixSearch);

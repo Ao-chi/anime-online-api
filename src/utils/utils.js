@@ -1,16 +1,29 @@
 import distance from "jaro-winkler";
-// import { distance } from "fastest-levenshtein";
+import { distance as levenshtein } from "fastest-levenshtein";
 import stringSimilarity from "string-similarity";
+import { PROVIDERS_LIST } from "@consumet/extensions";
+
+// Convert Roman numerals to numbers
+const romanToNumber = (str) => {
+    const romanMap = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
+    return str.replace(/\b[IVXLCDM]+\b/g, (match) => {
+        let num = 0,
+            prev = 0;
+        [...match].reverse().forEach((char) => {
+            const value = romanMap[char];
+            num += value < prev ? -value : value;
+            prev = value;
+        });
+        return num;
+    });
+};
 
 export function sanitize(title) {
     let lowercased = title.toLowerCase();
-
     lowercased = lowercased.replace(/[^\p{L}\p{N}\s]/gu, "");
-
+    lowercased = romanToNumber(lowercased); // Convert Roman numerals to numbers
     const wordsToRemove = ["season", "cour", "part"];
-
     const words = lowercased.split(/\s+/);
-
     const sanitizedWords = words.filter((word) => !wordsToRemove.includes(word));
 
     // console.log("sanitized:", sanitizedWords);
@@ -18,23 +31,54 @@ export function sanitize(title) {
     return sanitizedWords.join(" ");
 }
 
+// old findBestMatch
+// export function findBestMatch(mainString, targets) {
+//     if (targets.length === 0) return null;
+
+//     let bestMatch = targets[0];
+//     let highestScore = distance(mainString, sanitize(bestMatch));
+//     console.log(`Best Match: ${bestMatch} with Score: ${highestScore}`);
+
+//     for (let i = 1; i < targets.length; i++) {
+//         const sanitizedTarget = sanitize(targets[i]);
+//         const currentScore = distance(mainString, sanitizedTarget);
+//         // console.log(
+//         //     `Comparing "${mainString}" with "${sanitize(
+//         //         targets[i]
+//         //     )}" - Score: ${currentScore} , Highsst Score: ${highestScore} -Comparing "${mainString}" with "${sanitize(
+//         //         targets[i]
+//         //     )}`
+//         // );
+//         console.log(
+//             `Comparing "${mainString}" with "${sanitize(
+//                 targets[i]
+//             )}" - Score: ${currentScore} , Highsst Score: ${highestScore}`
+//         );
+//         if (currentScore > highestScore) {
+//             highestScore = currentScore;
+//             bestMatch = targets[i];
+//         }
+//     }
+
+//     return bestMatch;
+// }
+
+// Find best match using multiple similarity measures new
 export function findBestMatch(mainString, targets) {
     if (targets.length === 0) return null;
 
     let bestMatch = targets[0];
-    let highestScore = distance(mainString, sanitize(bestMatch));
+    let highestScore = combinedSimilarity(mainString, sanitize(bestMatch));
     console.log(`Best Match: ${bestMatch} with Score: ${highestScore}`);
 
     for (let i = 1; i < targets.length; i++) {
         const sanitizedTarget = sanitize(targets[i]);
-        const currentScore = distance(mainString, sanitizedTarget);
+        const currentScore = combinedSimilarity(mainString, sanitizedTarget);
+
         console.log(
-            `Comparing "${mainString}" with "${sanitize(
-                targets[i]
-            )}" - Score: ${currentScore} , Highsst Score: ${highestScore} -Comparing "${mainString}" with "${sanitize(
-                targets[i]
-            )}`
+            `Comparing "${mainString}" with "${sanitizedTarget}" - Score: ${currentScore}, Highest Score: ${highestScore}`
         );
+
         if (currentScore > highestScore) {
             highestScore = currentScore;
             bestMatch = targets[i];
@@ -44,21 +88,25 @@ export function findBestMatch(mainString, targets) {
     return bestMatch;
 }
 
+// Combines Jaro-Winkler, Levenshtein, and Cosine Similarity
+function combinedSimilarity(a, b) {
+    const jw = distance(a, b);
+    const lev = 1 - levenshtein(a, b) / Math.max(a.length, b.length);
+    const cos = stringSimilarity.compareTwoStrings(a, b);
+    return (jw + lev + cos) / 3; // Average score
+}
+
 export const findOriginalTitle = (title, titles) => {
     const { romaji, english, native } = title;
 
     const romajiBestMatch = findBestMatch(sanitize(romaji), titles);
-    const englishBestMatch = findBestMatch(sanitize(english) ? english : "", titles);
-    const nativeBestMatch = findBestMatch(sanitize(native) ? native : "", titles);
+    const englishBestMatch = findBestMatch(sanitize(english) || "", titles);
+    const nativeBestMatch = findBestMatch(sanitize(native) || "", titles);
 
-    // console.log(`romaji = ${romajiBestMatch}, english = ${englishBestMatch}, native = ${nativeBestMatch}`);
+    const romajiScore = romajiBestMatch ? combinedSimilarity(sanitize(romaji), romajiBestMatch) : 0;
+    const englishScore = englishBestMatch ? combinedSimilarity(sanitize(english) || "", englishBestMatch) : 0;
+    const nativeScore = nativeBestMatch ? combinedSimilarity(sanitize(native) || "", nativeBestMatch) : 0;
 
-    const romajiScore = romajiBestMatch ? distance(sanitize(romaji), romajiBestMatch) : 0;
-    const englishScore = englishBestMatch ? distance(sanitize(english) ? english : "", englishBestMatch) : 0;
-    const nativeScore = nativeBestMatch ? distance(sanitize(native) ? native : "", nativeBestMatch) : 0;
-    // const romajiScore = romajiBestMatch ? jaroWinkler(romaji, romajiBestMatch) : 0;
-    // const englishScore = englishBestMatch ? jaroWinkler(english ? english : "", englishBestMatch) : 0;
-    // const nativeScore = nativeBestMatch ? jaroWinkler(native ? native : "", nativeBestMatch) : 0;
     console.log("romajiScore", romajiScore);
 
     if (romajiScore >= englishScore && romajiScore >= nativeScore) {
@@ -68,6 +116,69 @@ export const findOriginalTitle = (title, titles) => {
     } else {
         return nativeBestMatch;
     }
+};
+
+// old findOriginalTitle
+// export const findOriginalTitle = (title, titles) => {
+//     const { romaji, english, native } = title;
+
+//     const romajiBestMatch = findBestMatch(sanitize(romaji), titles);
+//     const englishBestMatch = findBestMatch(sanitize(english) ? english : "", titles);
+//     const nativeBestMatch = findBestMatch(sanitize(native) ? native : "", titles);
+
+//     // console.log(`romaji = ${romajiBestMatch}, english = ${englishBestMatch}, native = ${nativeBestMatch}`);
+
+//     const romajiScore = romajiBestMatch ? distance(sanitize(romaji), romajiBestMatch) : 0;
+//     const englishScore = englishBestMatch ? distance(sanitize(english) ? english : "", englishBestMatch) : 0;
+//     const nativeScore = nativeBestMatch ? distance(sanitize(native) ? native : "", nativeBestMatch) : 0;
+//     // const romajiScore = romajiBestMatch ? jaroWinkler(romaji, romajiBestMatch) : 0;
+//     // const englishScore = englishBestMatch ? jaroWinkler(english ? english : "", englishBestMatch) : 0;
+//     // const nativeScore = nativeBestMatch ? jaroWinkler(native ? native : "", nativeBestMatch) : 0;
+//     console.log("romajiScore", romajiScore);
+
+//     if (romajiScore >= englishScore && romajiScore >= nativeScore) {
+//         return romajiBestMatch;
+//     } else if (englishScore >= romajiScore && englishScore >= nativeScore) {
+//         return englishBestMatch;
+//     } else {
+//         return nativeBestMatch;
+//     }
+// };
+
+export const mapProviders = async (title, providers) => {
+    // mapping
+    // Perform searches in parallel for all providers
+    const searchPromises = providers.map((providerName) => {
+        const possibleProvider = PROVIDERS_LIST.ANIME.find(
+            (p) => p.name.toLowerCase() === providerName.toLowerCase()
+        );
+        return Promise.all([
+            possibleProvider.search(sanitize(title.romaji)),
+            possibleProvider.search(sanitize(title.english)),
+        ]).then(([romajiSearchRes, englishSearchRes]) => ({
+            providerName,
+            searchRes: romajiSearchRes.results.length ? romajiSearchRes : englishSearchRes,
+        }));
+    });
+    const searchResults = await Promise.all(searchPromises);
+
+    // Combine and map results with provider identifiers
+    const mappedResults = searchResults
+        .flatMap(({ providerName, searchRes }) => {
+            const providerTitles = searchRes.results
+                .filter((anime) => anime !== null)
+                .map((anime) => anime.title);
+
+            const bestTitle = findOriginalTitle(title, providerTitles);
+
+            const mapped = searchRes.results.find(
+                (anime) => bestTitle.toLowerCase() === anime.title.toLowerCase()
+            );
+
+            return mapped ? { ...mapped, provider: providerName } : null;
+        })
+        .filter((mapped) => mapped !== null);
+    return mappedResults;
 };
 
 export function jaroWinkler(s1, s2) {
