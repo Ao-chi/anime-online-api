@@ -1,7 +1,7 @@
 import distance from "jaro-winkler";
 import { distance as levenshtein } from "fastest-levenshtein";
 import stringSimilarity from "string-similarity";
-import { PROVIDERS_LIST } from "@consumet/extensions";
+import { ANIME, PROVIDERS_LIST } from "@consumet/extensions";
 
 // Convert Roman numerals to numbers
 const romanToNumber = (str) => {
@@ -145,24 +145,72 @@ export const findOriginalTitle = (title, titles) => {
 //     }
 // };
 
-export const mapProviders = async (title, providers) => {
-    // mapping
-    // Perform searches in parallel for all providers
-    const searchPromises = providers.map((providerName) => {
-        const possibleProvider = PROVIDERS_LIST.ANIME.find(
-            (p) => p.name.toLowerCase() === providerName.toLowerCase()
-        );
-        return Promise.all([
-            possibleProvider.search(sanitize(title.romaji)),
-            possibleProvider.search(sanitize(title.english)),
-        ]).then(([romajiSearchRes, englishSearchRes]) => ({
-            providerName,
-            searchRes: romajiSearchRes.results.length ? romajiSearchRes : englishSearchRes,
-        }));
-    });
-    const searchResults = await Promise.all(searchPromises);
+// export const mapProviders = async (title, providers) => {
+//     // mapping
+//     // Perform searches in parallel for all providers
 
-    // Combine and map results with provider identifiers
+//     const searchPromises = providers.map((providerName) => {
+//         const possibleProvider = PROVIDERS_LIST.ANIME.find(
+//             (p) => p.name.toLowerCase() === providerName.toLowerCase()
+//         );
+
+//         return Promise.all([
+//             possibleProvider.search(sanitize(title.romaji)),
+//             possibleProvider.search(sanitize(title.english)),
+//         ]).then(([romajiSearchRes, englishSearchRes]) => ({
+//             providerName,
+//             searchRes: romajiSearchRes.results.length ? romajiSearchRes : englishSearchRes,
+//         }));
+//     });
+//     const searchResults = await Promise.all(searchPromises);
+
+//     // Combine and map results with provider identifiers
+//     const mappedResults = searchResults
+//         .flatMap(({ providerName, searchRes }) => {
+//             const providerTitles = searchRes.results
+//                 .filter((anime) => anime !== null)
+//                 .map((anime) => anime.title);
+
+//             const bestTitle = findOriginalTitle(title, providerTitles);
+
+//             const mapped = searchRes.results.find(
+//                 (anime) => bestTitle.toLowerCase() === anime.title.toLowerCase()
+//             );
+
+//             return mapped ? { ...mapped, provider: providerName } : null;
+//         })
+//         .filter((mapped) => mapped !== null);
+//     return mappedResults;
+// };
+
+export const mapProviders = async (title, providers) => {
+    const searchPromises = providers.map(async (providerName) => {
+        try {
+            const possibleProvider = PROVIDERS_LIST.ANIME.find(
+                (p) => p.name.toLowerCase() === providerName.toLowerCase()
+            );
+
+            if (!possibleProvider) throw new Error(`Provider ${providerName} not found`);
+
+            const results = await Promise.allSettled([
+                possibleProvider.search(sanitize(title.romaji)),
+                possibleProvider.search(sanitize(title.english)),
+            ]);
+
+            const romajiSearchRes = results[0].status === "fulfilled" ? results[0].value : null;
+            const englishSearchRes = results[1].status === "fulfilled" ? results[1].value : null;
+
+            const searchRes = romajiSearchRes?.results.length ? romajiSearchRes : englishSearchRes;
+
+            return searchRes ? { providerName, searchRes } : null; // If both searches fail, return null
+        } catch (error) {
+            console.error(`Error fetching from ${providerName}:`, error);
+            return null; // Skip this provider on failure
+        }
+    });
+
+    const searchResults = (await Promise.all(searchPromises)).filter((res) => res !== null);
+
     const mappedResults = searchResults
         .flatMap(({ providerName, searchRes }) => {
             const providerTitles = searchRes.results
@@ -178,9 +226,9 @@ export const mapProviders = async (title, providers) => {
             return mapped ? { ...mapped, provider: providerName } : null;
         })
         .filter((mapped) => mapped !== null);
+
     return mappedResults;
 };
-
 export function jaroWinkler(s1, s2) {
     const m = s1.length;
     const n = s2.length;

@@ -10,6 +10,10 @@ const animekaiInfo = async (req, res) => {
     }
 
     try {
+        const a = animekai.setProxy({
+            url: "https://goodproxy.goodproxy.workers.dev/fetch?ref=https://animekai.to&url=",
+        });
+        animekai = new ANIME.AnimeKai(a);
         const result = await animekai.fetchAnimeInfo(id, isDub);
         res.status(200).send(result);
     } catch (error) {
