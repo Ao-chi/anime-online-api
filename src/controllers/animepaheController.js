@@ -36,10 +36,14 @@ const paheInfoRoute = async (req, res) => {
 const paheWatchRoute = async (req, res) => {
     const episodeId = req.params.episodeId;
     console.log(episodeId);
-    const encodedId = encodeURIComponent(episodeId);
+    // const encodedId = encodeURIComponent(episodeId);
 
     try {
-        const result = await pahe.fetchEpisodeSources(encodedId);
+        const a = pahe.setProxy({
+            url: "https://goodproxy.goodproxy.workers.dev/fetch?ref=https://animepahe.ru&url=",
+        });
+        pahe = new ANIME.AnimePahe(a);
+        const result = await pahe.fetchEpisodeSources(episodeId);
         res.status(200).send(result);
     } catch (error) {
         res.status(500).send({ message: `Failed to fetch episode sources`, error: error });
